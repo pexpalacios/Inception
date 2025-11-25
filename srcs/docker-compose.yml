@@ -1,0 +1,30 @@
+services:
+ mariadb:
+  build:
+   context: ./requirements/mariadb
+   dockerfile: Dockerfile
+  container_name: mariadb
+  restart: always
+  env_file:
+   - .env
+  secrets:
+   - db_root_password
+   - db_password
+  volumes:
+    - /home/penpalac/data/db:/var/lib/mysql
+  networks:
+   -  inception
+  healthcheck:
+   test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+   interval: 10s
+   retries: 5
+
+secrets:
+ db_root_password:
+  file: ../secrets/db_root_password.txt
+ db_password:
+  file: ../secrets/db_password.txt
+
+networks:
+ inception:
+  driver: bridge

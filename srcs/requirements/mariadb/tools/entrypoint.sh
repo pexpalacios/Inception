@@ -1,15 +1,27 @@
 #!/bin/bash
 set -e
 
+MYSQL_ROOT_PASSWORD="$(cat /run/secrets/db_root_password)"
+MYSQL_PASSWORD="$(cat $MYSQL_PASSWORD_FILE)"
+
+mkdir -p /run/mysqld
+chown -R mysql:mysql /run/mysqld
+mkdir -p /var/lib/mysql
+chown -R mysql:mysql /var/lib/mysql
+
 #Ensure database folder exists
 if [ ! -d "/var/lib/mysql/mysql" ]; then
 	echo " [+] Creando base de datos MariaDB"
-	mariadb-install-db --user=mysql --basedir=/usr --dtadir=/var/lib/mysql
+	mariadb-install-db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
 	echo " [+] Base de datos inicializada"
 fi
 
 #Start config
 mysqld &
+
+#mysqld --skip-networking \
+#       --socket=/run/mysqld/mysqld-init.sock &
+#pid="$!"
 
 #Wait for server to start
 for i in {30..0}; do
@@ -32,8 +44,9 @@ mysql -e "FLUSH PRIVILEGES;"
 
 #Stop config server
 mysqladmin -u root -p"$DB_ROOT_PASSWORD" shutdown
+#mysqladmin --socket=/run/mysqld/mysqld-init.sock -u root shutdown
 
 wait
 
 #Execute real mariadb server
-exec mysql
+exec mysqld

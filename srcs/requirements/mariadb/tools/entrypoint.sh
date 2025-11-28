@@ -25,7 +25,7 @@ mysqld &
 
 #Wait for server to start
 for i in {30..0}; do
- if mysqladmin ping --silent; then
+ if mysqladmin --socket=/run/mysqld/mysqld-init.sock ping --silent; then
   break;
  fi
  sleep 1
@@ -43,7 +43,7 @@ mysql -e "GRANT ALL PRIVILAGES ON $MYSQL_DATABSE.* TO '$MYSQL_USER¡@'%';"
 mysql -e "FLUSH PRIVILEGES;"
 
 #Stop config server
-mysqladmin -u root -p"$DB_ROOT_PASSWORD" shutdown
+mysqladmin --socket=/run/mysqld/mysqld-init.sock -u root shutdown
 #mysqladmin --socket=/run/mysqld/mysqld-init.sock -u root shutdown
 
 wait
